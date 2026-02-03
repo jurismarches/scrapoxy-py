@@ -2,18 +2,4 @@
 Python API for Scrapoxy
 =======================
 
-
-Website
-=======
-
-Latest news are on `scrapoxy.io`_ !
-
-
-Documentation
-=============
-
-Documentation is on `docs.scrapoxy.io`_.
-
-
-.. _`scrapoxy.io`: http://scrapoxy.io
-.. _`docs.scrapoxy.io`: http://docs.scrapoxy.io
+This is a fork of an old Scrapoxy version (1.11), to make it work with Scrapy 2.14+.
