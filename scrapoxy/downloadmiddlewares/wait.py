@@ -12,22 +12,26 @@ import logging
 import time
 
 
-class WaitMiddleware(object):
+class WaitMiddleware:
 
     def __init__(self, crawler):
-        self._WAIT_FOR_START = crawler.settings.get('WAIT_FOR_START') or 120
-
+        self._WAIT_FOR_START = crawler.settings.get("WAIT_FOR_START") or 120
+        self.spider = crawler.spider
 
     @classmethod
     def from_crawler(cls, crawler):
         return cls(crawler)
 
-
-    def process_response(self, request, response, spider):
+    def process_response(self, request, response):
         if response.status != 407:
             return response
 
-        spider.log('[WaitMiddleware] Sleeping {0} seconds because no proxy is found: {1}'.format(self._WAIT_FOR_START, response.text), level=logging.WARNING)
+        self.spider.log(
+            "[WaitMiddleware] Sleeping {0} seconds because no proxy is found: {1}".format(
+                self._WAIT_FOR_START, response.text
+            ),
+            level=logging.WARNING,
+        )
         time.sleep(self._WAIT_FOR_START)
 
         return request.replace(

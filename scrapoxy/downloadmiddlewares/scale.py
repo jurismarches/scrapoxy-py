@@ -21,39 +21,42 @@ import logging
 import time
 
 
-class ScaleMiddleware(object):
+class ScaleMiddleware:
 
     def __init__(self, crawler):
         self._commander = Commander(
-            crawler.settings.get('API_SCRAPOXY'),
-            crawler.settings.get('API_SCRAPOXY_PASSWORD')
+            crawler.settings.get("API_SCRAPOXY"),
+            crawler.settings.get("API_SCRAPOXY_PASSWORD"),
         )
 
-        self._WAIT_FOR_SCALE = crawler.settings.get('WAIT_FOR_SCALE') or 120
+        self._WAIT_FOR_SCALE = crawler.settings.get("WAIT_FOR_SCALE") or 120
 
         crawler.signals.connect(self.spider_opened, signals.spider_opened)
         crawler.signals.connect(self.spider_closed, signals.spider_closed)
-
+        self.spider = crawler.spider
 
     @classmethod
     def from_crawler(cls, crawler):
         return cls(crawler)
 
-
     def spider_opened(self, spider):
-        spider.logger.debug('[ScaleMiddleware] Upscale Scrapoxy')
+        spider.logger.debug("[ScaleMiddleware] Upscale Scrapoxy")
 
         min_sc, required_sc, max_sc = self._commander.get_scaling()
         required_sc = max_sc
 
         self._commander.update_scaling(min_sc, required_sc, max_sc)
 
-        spider.log('[ScaleMiddleware] Sleeping {0} seconds to finish upscale'.format(self._WAIT_FOR_SCALE), level=logging.WARNING)
+        spider.log(
+            "[ScaleMiddleware] Sleeping {0} seconds to finish upscale".format(
+                self._WAIT_FOR_SCALE
+            ),
+            level=logging.WARNING,
+        )
         time.sleep(self._WAIT_FOR_SCALE)
 
-
     def spider_closed(self, spider):
-        spider.logger.debug('[ScaleMiddleware] Downscale Scrapoxy')
+        spider.logger.debug("[ScaleMiddleware] Downscale Scrapoxy")
 
         min_sc, required_sc, max_sc = self._commander.get_scaling()
         required_sc = min_sc
